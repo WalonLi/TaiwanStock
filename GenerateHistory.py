@@ -13,13 +13,20 @@ import sys
 # type,code,name,ISIN,start,market,group,CFI
 # 股票,1101,台泥,TW0001101004,1962/02/09,上市,水泥工業,ESVUFR
 
-# class Global:
-#     dir_check = False
+class Global:
+    wait_time = 6
 
 
 def handle_data(stock, y, m, sheet, row):
-    time.sleep(2) # small delay for website block
+
+    time.sleep(Global.wait_time) # small delay for website block
+    Global.wait_time -= 1
+    if Global.wait_time < 2:
+        Global.wait_time = 6
+
     date_list = stock.fetch(y, m)
+    # if not stock.low:
+    #     raise ValueError
 
     sheet.write_row('A' + str(row),
                     [str(y) + " %02d"%m,
@@ -41,6 +48,7 @@ if __name__ == '__main__':
 
     for number in range(1000, 2000, 1):
         if str(number) in twstock.codes:
+
             time.sleep(2) # small delay for website block
 
             stock_info = twstock.codes[str(number)]
@@ -76,26 +84,29 @@ if __name__ == '__main__':
 
 
                 print(stock_name, start_date)
-                print('    %d parsing...' % year)
                 if result.days > 16:
                     # only handle recently 15 years
                     for i in range(15*12):
                         # handle data
+                        # year = 2017
+                        # month = 4
+                        print('    %d %d parsing...' % (year, month))
                         handle_data(stock, year, month, sheet, i+2)
-
+                        # sys.exit()
                         month -= 1
                         if month == 0:
                             year -= 1
                             month = 12
-                            print('    %d parsing...' % year)
+
                 else:
                     i = 0
                     while True:
                         # handle data
+                        print('    %d %d parsing...' % (year, month))
                         handle_data(stock, year, month, sheet, i+2)
 
                         if start_date.year == year and start_date.month == month:
-                            print(start_date.year, start_date.month)
+                            print(start_date.year, start_date.month, ' end')
                             break
                         i += 1
                         month -= 1
