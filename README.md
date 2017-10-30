@@ -8,3 +8,4 @@ setup.py install
 pip install twstock
 pip install xlutils
 pip install xlsxwriter
+pip install openpyxl
