@@ -118,8 +118,6 @@ def get_history():
                         month = 12
                 file.save(excel_path)
                 file.close()
-                
-                return # test
             else:
                 # if exist, just scan latest data.
                 pass
@@ -159,7 +157,8 @@ def fix_history():
                         error_file.close()
                         break
                     else:
-                        os.remove(root + '\\' + f)
+                        if os.path.isfile(root + '\\' + f):
+                            os.remove(root + '\\' + f)
 
                     if target_date.year == year and target_date.month == month:
                         print(target_date.year, target_date.month, ' end')
