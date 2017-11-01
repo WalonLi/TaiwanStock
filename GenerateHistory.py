@@ -29,7 +29,6 @@ def handle_data(stock, y, m, raw_path, sheet, row):
             Global.wait_time -= 1
             if Global.wait_time < 2:
                 Global.wait_time = 6
-
             date_list = stock.fetch(y, m)
             # if not stock.low:
             #     raise ValueError
