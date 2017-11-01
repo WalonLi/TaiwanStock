@@ -118,7 +118,7 @@ class TPEXFetcher(BaseFetcher):
     def purify(self, original_data):
         # WALON >>
         f_data = []
-        for d in original_data['data']:
+        for d in original_data['aaData']:
             # we have to check stock is open today
             if d[3] != '--':
                 f_data.append(self._make_datatuple(d))
