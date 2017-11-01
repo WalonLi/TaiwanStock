@@ -22,7 +22,7 @@ class Global:
 
 def handle_data(stock, y, m, raw_path, sheet, row):
     Global.skip = True
-
+    
     for loop in range(3):
         try:
             time.sleep(Global.wait_time) # small delay for website block
@@ -33,7 +33,6 @@ def handle_data(stock, y, m, raw_path, sheet, row):
             date_list = stock.fetch(y, m)
             # if not stock.low:
             #     raise ValueError
-
             sheet.append([str(y) + " %02d"%m,
                          min(stock.low),
                          max(stock.high),
@@ -57,8 +56,8 @@ history_head = ['日期', '最低', '最高', '開盤', '收盤', '成交量', '
 
 def get_history():
     # for number in range(3031, 4000, 1):
-    for number in range(3031, 4000, 1):
-        
+    for number in range(3000, 4000, 1):
+
         if str(number) in twstock.codes:
 
             # time.sleep(2) # small delay for website block
@@ -99,39 +98,46 @@ def get_history():
                 
                 
                 i = 0
-                while True:
-                    # handle data
-                    print('    %d %d parsing...' % (year, month))
-                    handle_data(stock, year, month, path+'\\raw%d%02d'%(year,month), sheet, i+2)
-                    if Global.skip:
-                        error_file = open(path+'\\raw%d%02d.fail'%(year,month), 'w')
-                        error_file.close()
-                        break
+                try:
+                    while True:
+                        # handle data
+                        print('    %d %d parsing...' % (year, month))
+                        if not os.path.isfile(path + '\\raw%d%02d' % (year, month)):
+                            handle_data(stock, year, month, path+'\\raw%d%02d'%(year,month), sheet, i+2)
+                            if Global.skip:
+                                error_file = open(path+'\\raw%d%02d.fail'%(year,month), 'w')
+                                error_file.close()
+                                break
 
-                    if target_date.year == year and target_date.month == month:
-                        print(target_date.year, target_date.month, ' end')
-                        break
-                    i += 1
-                    month -= 1
-                    if month == 0:
-                        year -= 1
-                        month = 12
-                file.save(excel_path)
-                file.close()
-            else:
-                # if exist, just scan latest data.
-                pass
+                        if target_date.year == year and target_date.month == month:
+                            print(target_date.year, target_date.month, ' end')
+                            break
+                        i += 1
+                        month -= 1
+                        if month == 0:
+                            year -= 1
+                            month = 12
+                    file.save(excel_path)
+                    file.close()
+                except:
+                    file.save(excel_path)
+                    # file.close()
+                    print('get_history: unknown connect error ...')
+                    time.sleep(60)
+
             
             
 def fix_history():
     for root, dirs, files in os.walk(os.getcwd() + '\\StockList'):
+        files.reverse()
+
         for f in files:
             if f[-5:] == '.fail':
-                file = openpyxl.load_workbook(root + '\\' + files[0])
+                file = openpyxl.load_workbook(root + '\\' + files[-1])
                 sheet = file.get_sheet_by_name('Sheet1')
                 
-                print(root, files[0], f)
-                number = int(files[0][:4])
+                print(root, files[-1], f)
+                number = int(files[-1][:4])
                 fail_year = int(f[3:7])
                 fail_month = int(f[7:9])
                 print('Stock:%d Y:%d M:%02d' % (number, fail_year, fail_month))
@@ -148,34 +154,42 @@ def fix_history():
                 stock = Stock(str(number))
                 
                 i = 0
-                while True:
-                    # handle data
-                    print('    %d %d parsing...' % (year, month))
-                    handle_data(stock, year, month, root+'\\raw%d%02d'%(year,month), sheet, i+2)
-                    if Global.skip:
-                        error_file = open(root +'\\raw%d%02d.fail'%(year,month), 'w')
-                        error_file.close()
-                        break
-                    else:
-                        if os.path.isfile(root + '\\' + f):
-                            os.remove(root + '\\' + f)
+                try:
+                    while True:
+                        # handle data
+                        print('    %d %d parsing...' % (year, month))
+                        if not os.path.isfile(root +'\\raw%d%02d'%(year,month)):
+                            handle_data(stock, year, month, root+'\\raw%d%02d'%(year,month), sheet, i+2)
+                            if Global.skip:
+                                error_file = open(root +'\\raw%d%02d.fail'%(year,month), 'w')
+                                error_file.close()
+                                if year == 2017 and (month == 10 or month == 11):
+                                    break
+                            else:
+                                if os.path.isfile(root + '\\' + f):
+                                    os.remove(root + '\\' + f)
 
-                    if target_date.year == year and target_date.month == month:
-                        print(target_date.year, target_date.month, ' end')
-                        break
-                    i += 1
-                    month -= 1
-                    if month == 0:
-                        year -= 1
-                        month = 12
-                file.save(root + '\\' + files[0])
-                file.close()
+                        if target_date.year == year and target_date.month == month:
+                            print(target_date.year, target_date.month, ' end')
+                            break
+                        i += 1
+                        month -= 1
+                        if month == 0:
+                            year -= 1
+                            month = 12
+                    file.save(root + '\\' + files[-1])
+                    file.close()
+                except:
+                    file.save(root + '\\' + files[-1])
+                    file.close()
+                    print('fix_history: unknown connect error ...')
+                    time.sleep(60)
+                break # only scan once
+
     
     
 if __name__ == '__main__':
-    #
-    # time.sleep(1)
-    # stock = twstock.realtime.get('2412')
+
     print('Choose functions.')
     print('11:Generate History.')
     print('22:Fix unresolved History.')
