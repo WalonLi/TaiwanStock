@@ -1,11 +1,15 @@
-http://aka.ms/vcpython27
+#TaiwanStock
 
-https://github.com/toomore/grs.git
-setup.py install
+Get stock information.
 
 
-# twstock 
-pip install twstock
-pip install xlutils
-pip install xlsxwriter
-pip install openpyxl
+````
+Tool and Library dependency
+Python3.6
+twstock
+openpyxl
+````
+
+How to use
+1. Run Setup.bat
+2. Run GenerateHistory.py
