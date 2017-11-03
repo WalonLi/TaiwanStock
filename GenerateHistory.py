@@ -242,7 +242,12 @@ def get_all_this_month(year, month):
                 try:
                     number = int(f[:4])
                     stock = twstock.Stock(str(number))
-                    
+                    # if twstock.codes[str(number)].market == '上市':
+                    #     time.sleep(Global.wait_time) # small delay for website block
+                    #     Global.wait_time -= 1
+                    #     if Global.wait_time < 2:
+                    #         Global.wait_time = 6
+                        
                     print(root, f)
                     file = openpyxl.load_workbook(root + '\\' + f)
                     sheet = file.get_sheet_by_name('Sheet1')

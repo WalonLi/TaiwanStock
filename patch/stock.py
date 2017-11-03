@@ -139,8 +139,10 @@ class Stock(analytics.Analytics):
         self.data = []
 
         # Init data
-        self.fetch_31()
-
+        # WALON >>
+        # self.fetch_31()
+        # << WALON
+        
     def _month_year_iter(self, start_month, start_year, end_month, end_year):
         ym_start = 12 * start_year + start_month - 1
         ym_end = 12 * end_year + end_month
