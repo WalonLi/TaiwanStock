@@ -235,7 +235,10 @@ def fix_history():
                     time.sleep(60)
                 break # only scan once
 
-def get_all_this_month(year, month):
+def get_all_this_month():
+    year = int(input('year:'))
+    month = int(input('month:'))
+
     for root, dirs, files in os.walk(os.getcwd() + '\\StockList'):
         for f in files:
             if f[-5:] == '.xlsx':
@@ -266,20 +269,75 @@ def get_all_this_month(year, month):
                 file.save(root + '\\' + f)
                 file.close()
      
-    
+def generate_four_price():
+
+    while True:
+        while True:
+            try :
+                number = input('Enter your stock number: \n')
+                lowest = float(input('Enter your lowest: \n'))
+                cheap = float(input('Enter your cheap: \n'))
+                expensive = float(input('Enter your expensive: \n'))
+                highest = float(input('Enter your highest: \n'))
+                if lowest <= cheap and cheap <= expensive and expensive <= highest:
+                    break
+                else:
+                    print('Price is incorrect\n')
+            except ValueError:
+                print('Stock number or price is not incorrect\n')
+
+
+        match = False
+        for root, dirs, files in os.walk(os.getcwd() + '\\StockList'):
+            for f in files:
+                if f[-5:] == '.xlsx' and f[:4] == number:
+                    # print(f, root)
+                    match = True
+                    # get full name
+                    full_name = ''
+                    for i in range(len(f)):
+                        if f[i] == '_': break
+                        full_name += f[i]
+
+                    full_name = root + '\\' + full_name + '_Strategy.price'
+                    four_price = '4Price:{%.2f,%.2f,%.2f,%.2f}'%(lowest, cheap, expensive, highest)
+                    context = ''
+                    if os.path.isfile(full_name):
+                        file = open(full_name, 'r')
+                        context = file.read()
+                        file.close()
+                        for i in range(len(context)):
+                            if i < (len(context)-6) and context[i:i+6] == '4Price':
+                                j = i
+                                while context[j] != '}': j += 1
+                                print('Override old data...', context[i:j+1])
+                                context = context[:i] + context[j+1:]
+                                # print(context)
+                                break
+                    file = open(full_name, 'w')
+                    file.write(four_price + '\n' + context)
+                    file.close()
+
+                    print(four_price)
+                    print('Save in ' + full_name)
+                    break
+            if match: break
+
+
 if __name__ == '__main__':
 
     print('Choose functions.')
     print('11:Generate History.')
     print('22:Fix unresolved History.')
     print('33:Get data with specific month.')
-    
+    print('44 Generate four price.')
+
     option = input()
     if option == '11':
         get_history()
     elif option == '22':
         fix_history()
     elif option == '33':
-        year = input('year:')
-        month = input('month:')
-        get_all_this_month(int(year), int(month))
+        get_all_this_month()
+    elif option == '44':
+        generate_four_price()
